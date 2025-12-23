@@ -1,0 +1,444 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Engenharia Assistente IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow: hidden; }
+        .tab-content { display: none; height: 100%; overflow-y: auto; padding-bottom: 120px; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .message-user { background: #2563eb; color: white; border-top-right-radius: 0; align-self: flex-end; box-shadow: 0 4px 6px -1px rgb(37 99 235 / 0.1); }
+        .message-ai { background: white; color: #1e293b; border-top-left-radius: 0; border: 1px solid #e2e8f0; align-self: flex-start; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div id="app" class="flex flex-col h-screen w-full max-w-md bg-[#F8FAFC] border-x border-slate-200 shadow-2xl overflow-hidden relative">
+        
+        <!-- HEADER -->
+        <header class="bg-white px-4 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-100">
+                    <i data-lucide="hard-hat" size="22"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-800 text-sm leading-tight">ENG. ASSISTENTE IA</h1>
+                    <p id="header-subtitle" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Estruturas Concreto</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="handleExit()" class="p-2 text-slate-400 hover:text-red-500 transition-colors bg-slate-50 rounded-lg border border-slate-100">
+                    <i data-lucide="log-out" size="18"></i>
+                </button>
+                <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-xs font-bold border border-blue-100">AS</div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 p-4 overflow-hidden relative">
+            
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard" class="tab-content active">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-100 mb-6">
+                    <h2 class="text-xl font-bold">Olá, Engº. Ademilton</h2>
+                    <p class="text-blue-100 text-sm mt-1 opacity-80 font-medium">Dimensionamento seguro e normatizado.</p>
+                    <div class="mt-8 grid grid-cols-2 gap-3">
+                        <div class="bg-white/10 rounded-2xl p-4 backdrop-blur-md">
+                            <span class="block text-[10px] text-blue-100 font-bold uppercase mb-1">Cálculos IA</span>
+                            <span class="text-2xl font-bold">157</span>
+                        </div>
+                        <div class="bg-white/10 rounded-2xl p-4 backdrop-blur-md">
+                            <span class="block text-[10px] text-blue-100 font-bold uppercase mb-1">Consultas</span>
+                            <span class="text-2xl font-bold">42</span>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 px-1">Ações do Sistema</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="switchTab('assistant')" class="bg-white p-5 rounded-3xl border border-slate-100 flex flex-col items-center gap-3 active:scale-95 transition-all shadow-sm">
+                        <div class="p-3 bg-blue-50 rounded-2xl text-blue-600"><i data-lucide="message-square"></i></div>
+                        <span class="text-xs font-bold text-slate-700">Chat Geral</span>
+                    </button>
+                    <button onclick="switchTab('projects')" class="bg-white p-5 rounded-3xl border border-slate-100 flex flex-col items-center gap-3 active:scale-95 transition-all shadow-sm">
+                        <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-600"><i data-lucide="file-up"></i></div>
+                        <span class="text-xs font-bold text-slate-700">Análise PDF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CHAT TAB -->
+            <div id="assistant" class="tab-content h-full flex flex-col">
+                <div id="nbr-context-pill" class="hidden bg-blue-50 border border-blue-100 p-3 rounded-2xl mb-4 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shield-check" class="text-blue-600" size="16"></i>
+                        <span id="nbr-context-text" class="text-[11px] font-bold text-blue-700 uppercase">MODO ESPECIALISTA</span>
+                    </div>
+                    <button onclick="clearContext()" class="text-[10px] font-bold text-blue-400 hover:text-blue-600">LIMPAR</button>
+                </div>
+                
+                <div id="chat-messages" class="flex-1 space-y-4 overflow-y-auto pr-1 flex flex-col">
+                    <!-- Mensagens entram aqui -->
+                    <div class="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400">
+                        <i data-lucide="message-square" size="32" class="mb-4 text-blue-200"></i>
+                        <p class="text-xs">O que deseja consultar tecnicamente agora?</p>
+                    </div>
+                </div>
+
+                <div id="typing-indicator" class="hidden flex justify-start mb-4">
+                    <div class="bg-slate-100/50 p-4 rounded-3xl rounded-tl-none flex items-center gap-2">
+                        <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">IA Analisando...</span>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-100 rounded-3xl p-2.5 flex items-center gap-2 shadow-2xl mt-4">
+                    <input id="chat-input" type="text" placeholder="Digite sua dúvida técnica..." class="flex-1 bg-transparent px-4 py-3 text-sm outline-none">
+                    <button onclick="handleSendMessage()" class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-200 active:scale-90 transition-all">
+                        <i data-lucide="send" size="18"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PROJECTS TAB -->
+            <div id="projects" class="tab-content">
+                <div class="bg-white p-8 rounded-[40px] border-2 border-dashed border-slate-200 flex flex-col items-center text-center gap-5">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-600"><i data-lucide="file-up" size="40"></i></div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">Análise ATP</h3>
+                        <p class="text-xs text-slate-400 mt-2">Extração automática de conformidade normativa.</p>
+                    </div>
+                    <label class="bg-blue-600 text-white px-8 py-3.5 rounded-2xl text-sm font-bold cursor-pointer shadow-xl shadow-blue-100 active:scale-95 transition-all">
+                        Subir Projeto
+                        <input type="file" accept=".pdf" class="hidden" onchange="handleFileUpload(this)">
+                    </label>
+                </div>
+
+                <div id="file-ready-card" class="hidden bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between shadow-sm mt-6">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-red-50 text-red-500 p-3 rounded-2xl"><i data-lucide="file-text"></i></div>
+                        <p id="filename-display" class="text-sm font-bold text-slate-700 truncate max-w-[120px]">projeto.pdf</p>
+                    </div>
+                    <button onclick="runAnalysis()" id="btn-run-analysis" class="bg-emerald-500 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-lg shadow-emerald-50">Iniciar</button>
+                </div>
+
+                <div id="analysis-result-container" class="hidden bg-slate-900 text-slate-200 p-7 rounded-[32px] shadow-2xl space-y-5 border border-slate-800 mt-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="text-emerald-400" size="20"></i>
+                            <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Verificação Final</span>
+                        </div>
+                    </div>
+                    <div id="analysis-text" class="text-[13px] leading-relaxed whitespace-pre-wrap max-h-80 overflow-y-auto text-slate-300"></div>
+                    <button onclick="exportFullReport()" class="w-full bg-white/5 py-4 rounded-2xl text-xs font-bold text-white border border-white/10 flex items-center justify-center gap-3">
+                        <i data-lucide="download" size="18"></i> Exportar Relatório Completo
+                    </button>
+                </div>
+            </div>
+
+            <!-- NBRS TAB -->
+            <div id="nbrs" class="tab-content">
+                <div class="relative mb-6">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size="18"></i>
+                    <input type="text" placeholder="Pesquisar norma (Ex: 6118)..." class="w-full bg-white border border-slate-100 rounded-3xl pl-12 pr-6 py-4 text-sm shadow-sm outline-none">
+                </div>
+                <div id="nbr-list" class="grid grid-cols-1 gap-4">
+                    <!-- Cards de NBRs gerados por JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER NAVIGATION -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 px-8 py-5 flex justify-between items-center z-[100]">
+            <button onclick="switchTab('dashboard')" class="nav-btn active flex flex-col items-center gap-1.5 text-blue-600" data-tab="dashboard">
+                <i data-lucide="layout-dashboard" size="22"></i><span class="text-[10px] font-bold">Início</span>
+            </button>
+            <button onclick="switchTab('assistant')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-300" data-tab="assistant">
+                <i data-lucide="message-square" size="22"></i><span class="text-[10px] font-bold">IA Chat</span>
+            </button>
+            <button onclick="switchTab('projects')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-300" data-tab="projects">
+                <div class="p-3 rounded-full -mt-10 shadow-xl transition-all bg-slate-100 text-slate-400">
+                    <i data-lucide="plus" size="24"></i>
+                </div>
+                <span class="text-[10px] font-bold">Analise</span>
+            </button>
+            <button onclick="switchTab('nbrs')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-300" data-tab="nbrs">
+                <i data-lucide="book-open" size="22"></i><span class="text-[10px] font-bold">Normas</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "jspdf": "https://esm.sh/jspdf@^2.5.1",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+        import { jsPDF } from "jspdf";
+
+        // CONFIGURAÇÕES E ESTADO
+        const NBR_LIST = [
+            { id: '6118', name: 'NBR-6118', description: 'Projeto de estruturas de concreto - Procedimento' },
+            { id: '6120', name: 'NBR-6120', description: 'Cargas para o cálculo de estruturas de edificações' },
+            { id: '6122', name: 'NBR-6122', description: 'Projeto e execução de fundações' },
+            { id: '6123', name: 'NBR-6123', description: 'Forças devidas ao vento em edificações' },
+            { id: '8681', name: 'NBR-8681', description: 'Ações e segurança nas estruturas - Procedimento' },
+        ];
+
+        let state = {
+            activeTab: 'dashboard',
+            messages: [],
+            currentNbrContext: null,
+            pdfBase64: null,
+            isTyping: false
+        };
+
+        // INICIALIZAÇÃO
+        window.onload = () => {
+            renderNbrs();
+            lucide.createIcons();
+            setupEnterKey();
+        };
+
+        // NAVEGAÇÃO
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const isThisTab = btn.getAttribute('data-tab') === tabId;
+                btn.classList.toggle('text-blue-600', isThisTab);
+                btn.classList.toggle('text-slate-300', !isThisTab);
+                
+                // Estilo especial para o botão de projeto central
+                const centerIcon = btn.querySelector('.p-3');
+                if(centerIcon) {
+                    centerIcon.classList.toggle('bg-blue-600', isThisTab);
+                    centerIcon.classList.toggle('text-white', isThisTab);
+                    centerIcon.classList.toggle('bg-slate-100', !isThisTab);
+                    centerIcon.classList.toggle('text-slate-400', !isThisTab);
+                }
+            });
+            
+            state.activeTab = tabId;
+        };
+
+        // RENDERIZAÇÃO DE NORMAS
+        function renderNbrs() {
+            const container = document.getElementById('nbr-list');
+            container.innerHTML = NBR_LIST.map(nbr => `
+                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:border-blue-200 transition-colors group">
+                    <div class="flex justify-between items-start mb-4">
+                       <span class="bg-blue-50 text-blue-600 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter">${nbr.id}</span>
+                       <i data-lucide="book-open" size="18" class="text-slate-200"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">${nbr.name}</h4>
+                    <p class="text-[11px] text-slate-400 leading-normal mb-6">${nbr.description}</p>
+                    <div class="flex gap-2">
+                       <button onclick="handleConsultNbr('${nbr.name}', '${nbr.description}')" class="flex-1 bg-blue-600 text-white text-[10px] font-bold py-3 rounded-2xl shadow-lg shadow-blue-50 active:scale-95 transition-all">PERGUNTAR À IA</button>
+                       <button class="flex-1 bg-slate-50 text-slate-400 text-[10px] font-bold py-3 rounded-2xl">DETALHES</button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // LÓGICA DO CHAT
+        window.handleConsultNbr = (name, desc) => {
+            state.currentNbrContext = name;
+            const welcomeMsg = `Engº Ademilton, estou pronto para tirar suas dúvidas específicas sobre a ${name} (${desc}). O que você deseja saber?`;
+            state.messages = [{ role: 'assistant', content: welcomeMsg }];
+            updateChatUI();
+            
+            document.getElementById('nbr-context-text').innerText = `MODO ESPECIALISTA: ${name}`;
+            document.getElementById('nbr-context-pill').classList.remove('hidden');
+            document.getElementById('header-subtitle').innerText = `Foco: ${name}`;
+            
+            switchTab('assistant');
+        };
+
+        window.clearContext = () => {
+            state.currentNbrContext = null;
+            document.getElementById('nbr-context-pill').classList.add('hidden');
+            document.getElementById('header-subtitle').innerText = `Estruturas Concreto`;
+        };
+
+        window.handleSendMessage = async () => {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text || state.isTyping) return;
+
+            input.value = '';
+            addMessage('user', text);
+            setTyping(true);
+
+            try {
+                const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                const systemPrompt = `Você é um Assistente de Engenharia Civil Sênior. Responda tecnicamente ao Engº Ademilton. 
+                REGRAS: 1. NUNCA use LaTeX ($, \\, _, {}). 2. Use unicode (ø, ≥, ≤). 3. Foco em ${state.currentNbrContext || 'Estruturas de Concreto'}.`;
+                
+                const response = await ai.models.generateContent({
+                    model: 'gemini-3-flash-preview',
+                    contents: state.messages.map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] })),
+                    config: { systemInstruction: systemPrompt }
+                });
+
+                addMessage('assistant', response.text);
+            } catch (e) {
+                addMessage('assistant', "Erro na conexão. Tente novamente.");
+            } finally {
+                setTyping(false);
+            }
+        };
+
+        function addMessage(role, content) {
+            state.messages.push({ role, content });
+            updateChatUI();
+        }
+
+        function updateChatUI() {
+            const container = document.getElementById('chat-messages');
+            if(state.messages.length === 0) return;
+            
+            container.innerHTML = state.messages.map((m, idx) => `
+                <div class="flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'} animate-in fade-in">
+                    <div class="max-w-[90%] p-4 rounded-3xl text-[13px] leading-relaxed relative group ${m.role === 'user' ? 'message-user' : 'message-ai shadow-sm'}">
+                        ${m.content}
+                        ${m.role === 'assistant' ? `
+                            <button onclick="exportSingleMessage('${m.content.replace(/'/g, "\\'")}')" class="absolute -bottom-2 -right-2 bg-white border border-slate-200 p-1.5 rounded-full shadow-md text-blue-600 hover:scale-110 transition-transform active:scale-95 z-10">
+                                <i data-lucide="download" size="14"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <span class="text-[9px] text-slate-300 mt-1 px-2 uppercase font-bold">
+                        ${m.role === 'user' ? 'Você' : 'Assistente IA'}
+                    </span>
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
+            lucide.createIcons();
+        }
+
+        function setTyping(val) {
+            state.isTyping = val;
+            document.getElementById('typing-indicator').classList.toggle('hidden', !val);
+        }
+
+        // LÓGICA DE PDF / ANÁLISE
+        window.handleFileUpload = (input) => {
+            const file = input.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                state.pdfBase64 = reader.result.split(',')[1];
+                document.getElementById('filename-display').innerText = file.name;
+                document.getElementById('file-ready-card').classList.remove('hidden');
+                document.getElementById('analysis-result-container').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.runAnalysis = async () => {
+            if(!state.pdfBase64 || state.isTyping) return;
+            
+            const btn = document.getElementById('btn-run-analysis');
+            btn.innerText = "Analisando...";
+            btn.disabled = true;
+            setTyping(true);
+
+            try {
+                const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-3-pro-preview',
+                    contents: {
+                        parts: [
+                            { inlineData: { mimeType: 'application/pdf', data: state.pdfBase64 } },
+                            { text: "Realize a análise ATP rigorosa conforme NBR-6118. Sem códigos LaTeX." }
+                        ]
+                    }
+                });
+
+                document.getElementById('analysis-text').innerText = response.text;
+                document.getElementById('analysis-result-container').classList.remove('hidden');
+            } catch (e) {
+                alert("Erro ao analisar projeto.");
+            } finally {
+                btn.innerText = "Iniciar";
+                btn.disabled = false;
+                setTyping(false);
+            }
+        };
+
+        // EXPORTAÇÃO PDF
+        window.exportSingleMessage = (content) => {
+            const doc = new jsPDF();
+            const clean = sanitize(content);
+            doc.setFillColor(37, 99, 235);
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14);
+            doc.text('Nota Técnica IA - Engenharia', 20, 15);
+            doc.setFontSize(8);
+            doc.text(`Contexto: ${state.currentNbrContext || 'Geral'}`, 20, 22);
+            doc.setTextColor(30, 41, 59);
+            doc.setFontSize(11);
+            const lines = doc.splitTextToSize(clean, 170);
+            doc.text(lines, 20, 45);
+            doc.save('Nota_Tecnica.pdf');
+        };
+
+        window.exportFullReport = () => {
+            const text = document.getElementById('analysis-text').innerText;
+            const doc = new jsPDF();
+            doc.setFillColor(37, 99, 235);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.text('Relatório ATP Estrutural', 20, 20);
+            doc.setTextColor(30, 41, 59);
+            doc.setFontSize(10);
+            const lines = doc.splitTextToSize(sanitize(text), 170);
+            let y = 55;
+            lines.forEach(line => {
+                if(y > 280) { doc.addPage(); y = 20; }
+                doc.text(line, 20, y);
+                y += 7;
+            });
+            doc.save('Relatorio_ATP.pdf');
+        };
+
+        function sanitize(text) {
+            return text.replace(/\$/g, '').replace(/\\/g, '').replace(/\{/g, '').replace(/\}/g, '').replace(/_/g, '').replace(/\*/g, '').trim();
+        }
+
+        window.handleExit = () => {
+            if(confirm("Deseja sair do sistema?")) window.location.reload();
+        };
+
+        function setupEnterKey() {
+            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') handleSendMessage();
+            });
+        }
+    </script>
+</body>
+</html>
